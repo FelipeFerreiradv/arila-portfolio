@@ -29,13 +29,14 @@ useTexture.preload(TEXTURE_PATH);
 
 export const CardThree = () => {
   return (
-    <div className="flex h-screen w-full origin-center scale-100 transform items-center justify-center">
+    // Tornando o container absoluto para não interferir no fluxo de layout
+    <section className="absolute inset-0 flex items-center justify-center pointer-events-none">
       <Canvas camera={{ position: [0, 0, 13], fov: 25 }}>
         <ambientLight intensity={Math.PI} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
           <Band />
         </Physics>
-        <Environment background blur={0.75}>
+        <Environment blur={0.75}>
           <color attach="background" args={["black"]} />
           <Lightformer
             intensity={2}
@@ -67,7 +68,7 @@ export const CardThree = () => {
           />
         </Environment>
       </Canvas>
-    </div>
+    </section>
   );
 };
 
@@ -103,7 +104,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
         new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3(),
-      ]),
+      ])
   );
 
   const [dragged, drag] = useState(false);
@@ -140,15 +141,15 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       [j1, j2].forEach((ref) => {
         if (!ref.current.lerped)
           ref.current.lerped = new THREE.Vector3().copy(
-            ref.current.translation(),
+            ref.current.translation()
           );
         const clampedDistance = Math.max(
           0.1,
-          Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())),
+          Math.min(1, ref.current.lerped.distanceTo(ref.current.translation()))
         );
         ref.current.lerped.lerp(
           ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
+          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
         );
       });
       curve.points[0].copy(j3.current.translation());
@@ -167,61 +168,80 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 
   return (
     <>
-      <group position={[0, 4, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody
-          position={[2, 0, 0]}
-          ref={card}
-          {...segmentProps}
-          type={dragged ? "kinematicPosition" : "dynamic"}
+return (
+  <>
+    {/* Grupo principal com posição definida */}
+    <group position={[3, 4, 0]}>
+      <RigidBody ref={fixed} {...segmentProps} type="fixed" />
+      <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
+        <BallCollider args={[0.1]} />
+      </RigidBody>
+      <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
+        <BallCollider args={[0.1]} />
+      </RigidBody>
+      <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
+        <BallCollider args={[0.1]} />
+      </RigidBody>
+      <RigidBody
+        position={[2, 0, 0]}
+        ref={card}
+        {...segmentProps}
+        type={dragged ? "kinematicPosition" : "dynamic"}
+      >
+        <CuboidCollider args={[0.8, 1.125, 0.01]} />
+        <group
+          scale={2.25}
+          position={[0, -1.2, -0.05]}
+          onPointerOver={() => hover(true)}
+          onPointerOut={() => hover(false)}
+          onPointerUp={(e) => {
+            e.target.releasePointerCapture(e.pointerId);
+            drag(false);
+          }}
+          onPointerDown={(e) => {
+            e.target.setPointerCapture(e.pointerId);
+            drag(
+              new THREE.Vector3()
+                .copy(e.point)
+                .sub(vec.copy(card.current.translation()))
+            );
+          }}
         >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
-          <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
-            onPointerUp={(e) => {
-              e.target.releasePointerCapture(e.pointerId);
-              drag(false);
-            }}
-            onPointerDown={(e) => {
-              e.target.setPointerCapture(e.pointerId);
-              drag(
-                new THREE.Vector3()
-                  .copy(e.point)
-                  .sub(vec.copy(card.current.translation())),
-              );
-            }}
-          >
-            <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={materials.base.map}
-                map-anisotropy={16}
-                clearcoat={1}
-                clearcoatRoughness={0.15}
-                roughness={0.3}
-                metalness={0.5}
-              />
-            </mesh>
-            <mesh
-              geometry={nodes.clip.geometry}
-              material={materials.metal}
-              material-roughness={0.3}
+          <mesh geometry={nodes.card.geometry}>
+            <meshPhysicalMaterial
+              map={materials.base.map}
+              map-anisotropy={16}
+              clearcoat={1}
+              clearcoatRoughness={0.15}
+              roughness={0.3}
+              metalness={0.5}
             />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
-          </group>
-        </RigidBody>
-      </group>
+          </mesh>
+          <mesh
+            geometry={nodes.clip.geometry}
+            material={materials.metal}
+            material-roughness={0.3}
+          />
+          <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+        </group>
+      </RigidBody>
+
+      {/* Inclua o mesh do band dentro do mesmo grupo para alinhá-lo */}
+      <mesh ref={band}>
+        <meshLineGeometry />
+        <meshLineMaterial
+          color="white"
+          depthTest={false}
+          resolution={[width, height]}
+          useMap
+          map={texture}
+          repeat={[-4, 1]}
+          lineWidth={1}
+        />
+      </mesh>
+    </group>
+  </>
+);
       <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
