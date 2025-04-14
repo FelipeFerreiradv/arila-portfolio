@@ -7,6 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-aleo: var(--font-aleo);
   --font-montserrat: var(--font-montserrat);
   --font-fira-code: var(--font-fira-code);
   --font-pixo-reto: var(--font-pixo-reto);
@@ -54,13 +55,13 @@
   --card-foreground: oklch(0.13 0.028 261.692);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0.028 261.692);
-  --primary: #520000;
+  --primary: #500405;
   --primary-foreground: #000000;
   --secondary: #bd9e77;
   --secondary-foreground: #ecc590;
   --secondary-foreground-light: #ffffffbf;
   --muted: #8e775e;
-  --muted-foreground: #fffff0;
+  --muted-foreground: #f6f6e9;
   --accent: oklch(0.967 0.003 264.542);
   --accent-foreground: oklch(0.21 0.034 264.665);
   --destructive: oklch(0.577 0.245 27.325);
@@ -127,5 +128,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
   }
 }
