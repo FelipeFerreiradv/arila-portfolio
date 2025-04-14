@@ -1,8 +1,13 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { Fira_Code, Montserrat } from "next/font/google";
+import { Aleo, Fira_Code, Montserrat } from "next/font/google";
 import localFont from "next/font/local";
+
+const aleo = Aleo({
+  variable: "--font-aleo",
+  subsets: ["latin"],
+});
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -32,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${montserrat.variable} ${firaCode.variable} ${pixoReto.variable} antialiased`}
+        className={`${aleo.variable} ${montserrat.variable} ${firaCode.variable} ${pixoReto.variable} antialiased`}
       >
         {children}
       </body>
